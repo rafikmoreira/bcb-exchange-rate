@@ -52,4 +52,4 @@ async def test_convert_amount_in_usd_use_case():
 def test_get_previous_business_day_monday():
     monday = datetime(2026, 10, 5)
     previous = get_previous_business_day(monday)
-    assert previous.strftime("%d/%m/%Y") == "02/10/2026"
+    assert previous.strftime("%Y-%m-%d") == "2026-10-02"

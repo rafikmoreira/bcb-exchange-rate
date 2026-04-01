@@ -3,7 +3,7 @@ from typing import Optional
 
 class CurrencyQuotation(BaseModel):
     currency: str = Field(..., description="Sigla da moeda, ex: USD, EUR, GBP")
-    date: str = Field(..., description="Data da cotação consultada no formato MM/DD/YYYY")
+    date: str = Field(..., description="Data da cotação consultada no formato YYYY-MM-DD")
     buy_rate_brl: float = Field(..., description="Cotação de compra da moeda em Reais")
     sell_rate_brl: float = Field(..., description="Cotação de venda da moeda em Reais")
     usd_parity_buy: float = Field(..., description="Paridade (quantidade de USD para compor 1 unidade, ou vice-versa, dependendo do tipo da moeda) ou conversão direta para dólar de compra")

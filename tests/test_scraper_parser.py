@@ -7,12 +7,12 @@ def test_parse_all_currencies():
 31032026;220;A;USD;4,9870;4,9876;1,0000;1,0000
 31032026;123;A;GBP;6,1010;6,1020;1,25;1,26
 """
-    quotations = scraper._parse_all_currencies(csv_text, "03-31-2026")
+    quotations = scraper._parse_all_currencies(csv_text, "2026-03-31")
     
     assert len(quotations) == 3
     
     eur = next(q for q in quotations if q.currency == "EUR")
-    assert eur.date == "03-31-2026"
+    assert eur.date == "2026-03-31"
     assert eur.buy_rate_brl == 5.4000
     assert eur.usd_parity_buy == 1.08
 
@@ -27,4 +27,4 @@ def test_parse_csv_for_usd_not_found():
     outralinha
 """
     with pytest.raises(ValueError, match="Não foram encontradas cotações válidas"):
-        scraper._parse_all_currencies(csv_text, "03-31-2026")
+        scraper._parse_all_currencies(csv_text, "2026-03-31")

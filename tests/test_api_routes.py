@@ -17,7 +17,7 @@ def make_mock_use_case(quotations=None, raises=None):
         default_quotations = quotations or [
             CurrencyQuotation(
                 currency="USD",
-                date="04-01-2026",
+                date="2026-04-01",
                 buy_rate_brl=5.00,
                 sell_rate_brl=5.00,
                 usd_parity_buy=1.0,
@@ -25,7 +25,7 @@ def make_mock_use_case(quotations=None, raises=None):
             ),
             CurrencyQuotation(
                 currency="EUR",
-                date="04-01-2026",
+                date="2026-04-01",
                 buy_rate_brl=5.50,
                 sell_rate_brl=5.50,
                 usd_parity_buy=1.1,
@@ -35,7 +35,7 @@ def make_mock_use_case(quotations=None, raises=None):
         mock.list_all_quotations = AsyncMock(return_value=default_quotations)
         mock.get_currency_in_usd = AsyncMock(return_value={
             "currency": "EUR",
-            "date": "04-01-2026",
+            "date": "2026-04-01",
             "buy_rate_usd": 1.1,
             "sell_rate_usd": 1.1,
             "brl_buy": 5.50,
@@ -46,7 +46,7 @@ def make_mock_use_case(quotations=None, raises=None):
             amount=100.0,
             usd_value_buy=110.0,
             usd_value_sell=110.0,
-            reference_date="04-01-2026",
+            reference_date="2026-04-01",
             rate_used_buy=1.1,
             rate_used_sell=1.1,
         ))
@@ -76,7 +76,7 @@ class TestListAllQuotations:
         app.dependency_overrides[get_ptax_use_case] = lambda: mock
 
         with TestClient(app) as client:
-            response = client.get("/api/v1/quotations?reference_date=01/04/2026")
+            response = client.get("/api/v1/quotations?reference_date=2026-04-01")
 
         assert response.status_code == 200
 
@@ -84,10 +84,10 @@ class TestListAllQuotations:
 
     def test_returns_400_with_invalid_date_format(self):
         with TestClient(app) as client:
-            response = client.get("/api/v1/quotations?reference_date=2026-04-01")
+            response = client.get("/api/v1/quotations?reference_date=04-01-2026")
 
         assert response.status_code == 400
-        assert "DD/MM/YYYY" in response.json()["detail"]
+        assert "YYYY-MM-DD" in response.json()["detail"]
 
     def test_returns_404_when_provider_raises_value_error(self):
         mock = make_mock_use_case(raises=ValueError("Data sem cotações disponíveis."))
@@ -123,7 +123,7 @@ class TestGetCurrencyInUsd:
             response = client.get("/api/v1/quotations/EUR?reference_date=01-04-2026")
 
         assert response.status_code == 400
-        assert "DD/MM/YYYY" in response.json()["detail"]
+        assert "YYYY-MM-DD" in response.json()["detail"]
 
     def test_returns_404_for_unknown_currency(self):
         mock = make_mock_use_case(raises=ValueError("Não foi possível encontrar as cotações para XYZ ou USD na data baseada."))
@@ -191,7 +191,7 @@ class TestConvertCurrencyToUsd:
             response = client.get("/api/v1/quotations/EUR/convert?amount=100&reference_date=2026/04/01")
 
         assert response.status_code == 400
-        assert "DD/MM/YYYY" in response.json()["detail"]
+        assert "YYYY-MM-DD" in response.json()["detail"]
 
     def test_returns_404_for_unknown_currency(self):
         mock = make_mock_use_case(raises=ValueError("Não foi possível encontrar XYZ ou USD para a conversão."))

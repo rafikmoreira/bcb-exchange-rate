@@ -26,13 +26,13 @@ async def list_all_quotations(
     """
     Lista TODAS as moedas e suas informações extraídas do PTAX (BCB) na data solicitada,
     incluindo taxas em BRL e as Paridades do site do BC.
-    :param reference_date: DD/MM/YYYY (opcional)
+    :param reference_date: YYYY-MM-DD (opcional)
     """
     if reference_date:
         try:
-            ref_dt = datetime.strptime(reference_date, "%d/%m/%Y")
+            ref_dt = datetime.strptime(reference_date, "%Y-%m-%d")
         except ValueError:
-            raise HTTPException(status_code=400, detail="Formato de data inválido. Use DD/MM/YYYY.")
+            raise HTTPException(status_code=400, detail="Formato de data inválido. Use YYYY-MM-DD.")
     else:
         ref_dt = datetime.now()
 
@@ -40,7 +40,7 @@ async def list_all_quotations(
         quotations = await use_case.list_all_quotations(ref_dt)
         _log_repo.save_log(LogEntry(
             level="INFO",
-            message=f"Listagem de cotações consultada com sucesso para {ref_dt.strftime('%d/%m/%Y')}. Total: {len(quotations)} moedas.",
+            message=f"Listagem de cotações consultada com sucesso para {ref_dt.strftime('%Y-%m-%d')}. Total: {len(quotations)} moedas.",
             context="GET /api/v1/quotations",
         ))
         return quotations
@@ -61,13 +61,13 @@ async def get_currency_in_usd(
     """
     Retorna a cotação de 1 unidade da moeda (ex: EUR) lastreada/equivalente em Dólares (USD).
     :param currency: Sigla da moeda (EUR, JPY, GBP...)
-    :param reference_date: DD/MM/YYYY (opcional)
+    :param reference_date: YYYY-MM-DD (opcional)
     """
     if reference_date:
         try:
-            ref_dt = datetime.strptime(reference_date, "%d/%m/%Y")
+            ref_dt = datetime.strptime(reference_date, "%Y-%m-%d")
         except ValueError:
-            raise HTTPException(status_code=400, detail="Formato de data inválido. Use DD/MM/YYYY.")
+            raise HTTPException(status_code=400, detail="Formato de data inválido. Use YYYY-MM-DD.")
     else:
         ref_dt = datetime.now()
 
@@ -75,7 +75,7 @@ async def get_currency_in_usd(
         result = await use_case.get_currency_in_usd(currency, ref_dt)
         _log_repo.save_log(LogEntry(
             level="INFO",
-            message=f"Cotação de {currency.upper()} em USD consultada para {ref_dt.strftime('%d/%m/%Y')}.",
+            message=f"Cotação de {currency.upper()} em USD consultada para {ref_dt.strftime('%Y-%m-%d')}.",
             context=f"GET /api/v1/quotations/{currency}",
         ))
         return result
@@ -103,9 +103,9 @@ async def convert_currency_to_usd(
 
     if reference_date:
         try:
-            ref_dt = datetime.strptime(reference_date, "%d/%m/%Y")
+            ref_dt = datetime.strptime(reference_date, "%Y-%m-%d")
         except ValueError:
-            raise HTTPException(status_code=400, detail="Formato de data inválido. Use DD/MM/YYYY.")
+            raise HTTPException(status_code=400, detail="Formato de data inválido. Use YYYY-MM-DD.")
     else:
         ref_dt = datetime.now()
 
@@ -113,7 +113,7 @@ async def convert_currency_to_usd(
         result = await use_case.convert_amount_in_usd(currency, amount, ref_dt)
         _log_repo.save_log(LogEntry(
             level="INFO",
-            message=f"Conversão de {amount} {currency.upper()} para USD realizada para {ref_dt.strftime('%d/%m/%Y')}.",
+            message=f"Conversão de {amount} {currency.upper()} para USD realizada para {ref_dt.strftime('%Y-%m-%d')}.",
             context=f"GET /api/v1/quotations/{currency}/convert",
         ))
         return result

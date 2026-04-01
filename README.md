@@ -59,15 +59,14 @@ Você também pode acessar a documentação interativa gerada automaticamente pe
 
 O parâmetro `reference_date` é opcional em todos os endpoints. Quando não informado, a data do dia útil anterior é utilizada.
 
-> **Formato de entrada:** `reference_date` deve ser enviado no padrão `DD/MM/YYYY` (ex: `01/04/2026`).
-> **Formato de saída:** datas são retornadas no padrão americano `MM-DD-YYYY` (ex: `03-31-2026`).
+> **Formato de datas:** tanto o parâmetro `reference_date` (entrada) quanto as datas retornadas nas respostas seguem o padrão ISO 8601 `YYYY-MM-DD` (ex: `2026-04-01`).
 
 ### 1. Listar todas as cotações
 
 Retorna a lista de todas as moedas extraídas do PTAX, com suas taxas em BRL e as paridades.
 
 ```text
-GET /api/v1/quotations?reference_date=DD/MM/YYYY
+GET /api/v1/quotations?reference_date=YYYY-MM-DD
 ```
 
 Exemplo de resposta:
@@ -76,7 +75,7 @@ Exemplo de resposta:
 [
   {
     "currency": "EUR",
-    "date": "03-31-2026",
+    "date": "2026-03-31",
     "buy_rate_brl": 6.01,
     "sell_rate_brl": 6.0117,
     "usd_parity_buy": 1.08,
@@ -90,7 +89,7 @@ Exemplo de resposta:
 Retorna a cotação equivalente a 1 unidade da moeda desejada (ex: EUR, JPY) em Dólares (USD).
 
 ```text
-GET /api/v1/quotations/{currency}?reference_date=DD/MM/YYYY
+GET /api/v1/quotations/{currency}?reference_date=YYYY-MM-DD
 ```
 
 Exemplo de resposta:
@@ -98,7 +97,7 @@ Exemplo de resposta:
 ```json
 {
   "currency": "EUR",
-  "date": "03-31-2026",
+  "date": "2026-03-31",
   "buy_rate_usd": 1.151606,
   "sell_rate_usd": 1.151799,
   "brl_buy": 6.01,
@@ -111,10 +110,10 @@ Exemplo de resposta:
 Calcula a equivalência total em Dólares (USD) para o montante informado.
 
 ```text
-GET /api/v1/quotations/{currency}/convert?amount={valor}&reference_date=DD/MM/YYYY
+GET /api/v1/quotations/{currency}/convert?amount={valor}&reference_date=YYYY-MM-DD
 ```
 
-Exemplo: `/api/v1/quotations/EUR/convert?amount=13000`
+Exemplo: `/api/v1/quotations/EUR/convert?amount=13000&reference_date=2026-03-31`
 
 ## Testes Automatizados
 

@@ -21,7 +21,7 @@ class GetPtaxQuotationUseCase:
         else:
             target_date = reference_date
             
-        formatted_date = target_date.strftime("%m-%d-%Y")
+        formatted_date = target_date.strftime("%Y-%m-%d")
         
         if self.repository:
             saved_quotations = self.repository.get_quotations_by_date(formatted_date)
