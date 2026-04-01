@@ -13,7 +13,7 @@ def get_ptax_use_case() -> GetPtaxQuotationUseCase:
     repository = SQLiteQuotationRepository()
     return GetPtaxQuotationUseCase(provider=provider, repository=repository)
 
-@router.get("/quotations", response_model=List[CurrencyQuotation])
+@router.get("/quotations", response_model=List[CurrencyQuotation], summary="Listar todas as cotações PTAX")
 async def list_all_quotations(
     reference_date: Optional[str] = None,
     use_case: GetPtaxQuotationUseCase = Depends(get_ptax_use_case)
@@ -34,7 +34,7 @@ async def list_all_quotations(
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
-@router.get("/quotation/{currency}")
+@router.get("/quotations/{currency}", summary="Equivalência da moeda em USD")
 async def get_currency_in_usd(
     currency: str,
     reference_date: Optional[str] = None,
@@ -55,7 +55,7 @@ async def get_currency_in_usd(
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
-@router.get("/quotation/{currency}/convert", response_model=ConvertedAmount)
+@router.get("/quotations/{currency}/convert", response_model=ConvertedAmount, summary="Converter montante para USD")
 async def convert_currency_to_usd(
     currency: str,
     amount: float,

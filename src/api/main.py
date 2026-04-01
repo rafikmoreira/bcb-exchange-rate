@@ -1,11 +1,17 @@
 from fastapi import FastAPI
 from src.api.routes import router
 
+from fastapi.responses import RedirectResponse
+
 app = FastAPI(
-    title="PTAX Quotation API",
+    title="BCB PTAX API",
     description="API que acessa e retorna cotações de Dólar de forma automatizada via site do Banco Central.",
-    version="1.0.0"
+    version="0.1.0"
 )
+
+@app.get("/", include_in_schema=False)
+async def docs_redirect():
+    return RedirectResponse(url="/docs")
 
 app.include_router(router)
 
