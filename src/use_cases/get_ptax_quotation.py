@@ -21,7 +21,7 @@ class GetPtaxQuotationUseCase:
         else:
             target_date = reference_date
             
-        formatted_date = target_date.strftime("%d/%m/%Y")
+        formatted_date = target_date.strftime("%m-%d-%Y")
         
         if self.repository:
             saved_quotations = self.repository.get_quotations_by_date(formatted_date)
@@ -54,8 +54,8 @@ class GetPtaxQuotationUseCase:
         return {
             "currency": currency_code.upper(),
             "date": target_currency.date,
-            "1_unit_in_usd_buy": round(rate_buy_in_usd, 6),
-            "1_unit_in_usd_sell": round(rate_sell_in_usd, 6),
+            "buy_rate_usd": round(rate_buy_in_usd, 6),
+            "sell_rate_usd": round(rate_sell_in_usd, 6),
             "brl_buy": target_currency.buy_rate_brl,
             "brl_sell": target_currency.sell_rate_brl
         }

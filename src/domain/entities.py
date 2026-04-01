@@ -1,9 +1,9 @@
 from pydantic import BaseModel, Field
-from typing import List
+from typing import Optional
 
 class CurrencyQuotation(BaseModel):
     currency: str = Field(..., description="Sigla da moeda, ex: USD, EUR, GBP")
-    date: str = Field(..., description="Data da cotação consultada no formato DD/MM/YYYY")
+    date: str = Field(..., description="Data da cotação consultada no formato MM/DD/YYYY")
     buy_rate_brl: float = Field(..., description="Cotação de compra da moeda em Reais")
     sell_rate_brl: float = Field(..., description="Cotação de venda da moeda em Reais")
     usd_parity_buy: float = Field(..., description="Paridade (quantidade de USD para compor 1 unidade, ou vice-versa, dependendo do tipo da moeda) ou conversão direta para dólar de compra")
@@ -17,3 +17,9 @@ class ConvertedAmount(BaseModel):
     reference_date: str = Field(...)
     rate_used_buy: float = Field(...)
     rate_used_sell: float = Field(...)
+
+class LogEntry(BaseModel):
+    level: str = Field(..., description="Nível do log: INFO, WARNING, ERROR")
+    message: str = Field(..., description="Mensagem do log")
+    context: Optional[str] = Field(None, description="Contexto ou módulo que gerou o log")
+    created_at: Optional[str] = Field(None, description="Timestamp do registro no formato ISO 8601")

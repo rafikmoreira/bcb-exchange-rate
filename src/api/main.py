@@ -4,7 +4,7 @@ from fastapi.exceptions import RequestValidationError
 from src.api.routes import router
 
 app = FastAPI(
-    title="BCB PTAX API",
+    title="BCB Exchange Rate API",
     description="API que acessa e retorna cotações de Dólar de forma automatizada via site do Banco Central.",
     version="0.1.0"
 )

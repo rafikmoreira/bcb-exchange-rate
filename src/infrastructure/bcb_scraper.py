@@ -14,7 +14,7 @@ class PlaywrightBCBScraper(QuotationProvider):
         os.makedirs(CACHE_DIR, exist_ok=True)
         
     async def get_all_quotations_for_date(self, target_date: str) -> List[CurrencyQuotation]:
-        dt_obj = datetime.strptime(target_date, "%d/%m/%Y")
+        dt_obj = datetime.strptime(target_date, "%m-%d-%Y")
         file_date_str = dt_obj.strftime("%d%m%Y")
         file_name = f"cotacaoTodasAsMoedas_{file_date_str}.csv"
         file_path = os.path.join(CACHE_DIR, file_name)
@@ -43,9 +43,9 @@ class PlaywrightBCBScraper(QuotationProvider):
                 await radio_btn.wait_for(state="visible", timeout=30000)
                 await radio_btn.click()
 
-                # Preencher a data
+                bcb_date = datetime.strptime(target_date, "%m-%d-%Y").strftime("%d/%m/%Y")
                 date_input = frame.locator('input[name="DATAINI"]')
-                await date_input.fill(target_date)
+                await date_input.fill(bcb_date)
 
                 # Clicar em Pesquisar
                 search_btn = frame.locator('.botao[value="Pesquisar"]')

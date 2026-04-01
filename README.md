@@ -1,15 +1,15 @@
-# PTAX Quotation API
+# BCB Exchange Rate API
 
-[![CI](https://github.com/rafikmoreira/bcb-ptax-api/actions/workflows/ci.yml/badge.svg)](https://github.com/rafikmoreira/bcb-ptax-api/actions/workflows/ci.yml)
+[![CI](https://github.com/rafikmoreira/bcb-exchange-rate/actions/workflows/ci.yml/badge.svg)](https://github.com/rafikmoreira/bcb-exchange-rate/actions/workflows/ci.yml)
 
 Uma API construída com **FastAPI** seguindo os princípios da **Clean Architecture** para consultar, de forma automatizada, dados de cotação do **Banco Central do Brasil (BCB)** através da taxa PTAX. O projeto utiliza o **Playwright** para fazer o download automático dos arquivos CSV da cotação e calcula a equivalência das moedas atreladas ao Dólar Americano (USD).
 
 ## Principais Funcionalidades
 
-- **Automação (Scraping):** Faz download da cotação PTAX diretamente da página web do BCB usando Playwright e salva os dados em um banco de dados local SQLite.
+- **Automação (Scraping):** Faz download da cotação PTAX diretamente da página web do BCB usando Playwright e persiste os dados em um banco SQLite local.
 - **Cálculo de Paridade USD:** Calcula o lastro de moedas listadas cruzadas pelo Dólar com base na PTAX, considerando Dólar e as respectivas paridades.
 - **Cache Local e Lógica de Dias Úteis:** Lida com datas de referência para cotação, ignorando finais de semana e priorizando o cache dos dados armazenados no banco SQLite para maior performance.
-- **Sistema de Logs:** Utiliza infraestrutura de logs dedicada construída de forma robusta e transparente entre as camadas.
+- **Persistência de Logs:** Cada requisição à API gera um log de nível `INFO` (sucesso) ou `ERROR` (falha de negócio), armazenado no mesmo banco SQLite.
 
 ## Tecnologias e Ferramentas
 
@@ -21,13 +21,13 @@ Uma API construída com **FastAPI** seguindo os princípios da **Clean Architect
 
 ## Instalação
 
-O projeto foi migrado para utilizar o `uv` como gerenciador de dependências em substituição ao `venv` clássico ou `pip`.
+O projeto utiliza o `uv` como gerenciador de dependências.
 
 1. Clone o repositório e acesse a pasta do projeto:
 
    ```bash
-   git clone https://github.com/rafikmoreira/bcb-ptax-api.git
-   cd bcb-ptax-api
+   git clone https://github.com/rafikmoreira/bcb-exchange-rate.git
+   cd bcb-exchange-rate
    ```
 
 2. Sincronize e instale as dependências usando `uv`:
@@ -57,28 +57,68 @@ Você também pode acessar a documentação interativa gerada automaticamente pe
 
 ## Principais Endpoints da API
 
-O `reference_date` pode ser opcionalmente enviado nos endpoints no formato `DD/MM/YYYY` (ex: `01/04/2026`). Caso não seja enviado, a data atual do momento da requisição é utilizada.
+O parâmetro `reference_date` é opcional em todos os endpoints. Quando não informado, a data do dia útil anterior é utilizada.
+
+> **Formato de entrada:** `reference_date` deve ser enviado no padrão `DD/MM/YYYY` (ex: `01/04/2026`).
+> **Formato de saída:** datas são retornadas no padrão americano `MM-DD-YYYY` (ex: `03-31-2026`).
 
 ### 1. Listar todas as cotações
 
-Retorna a lista de todas as moedas e suas informações extraídas do PTAX na data especificada, contendo suas taxas perante o BRL e as Paridades.
-`GET /api/v1/quotations?reference_date=DD/MM/YYYY`
+Retorna a lista de todas as moedas extraídas do PTAX, com suas taxas em BRL e as paridades.
 
-### 2. Equivalência de 1 unidade para USD
+```text
+GET /api/v1/quotations?reference_date=DD/MM/YYYY
+```
 
-Retorna a cotação equivalente a 1 unidade da moeda desejada (ex: EUR, JPY) lastreada/equivalente em Dólares (USD).
-`GET /api/v1/quotations/{currency}?reference_date=DD/MM/YYYY`
+Exemplo de resposta:
 
-### 3. Converter um Montante para USD
+```json
+[
+  {
+    "currency": "EUR",
+    "date": "03-31-2026",
+    "buy_rate_brl": 6.01,
+    "sell_rate_brl": 6.0117,
+    "usd_parity_buy": 1.08,
+    "usd_parity_sell": 1.09
+  }
+]
+```
 
-Calcula a equivalência total em Dólares (USD) com base na cotação para o montante específico passado como valor.
-`GET /api/v1/quotations/{currency}/convert?amount={valor}&reference_date=DD/MM/YYYY`
+### 2. Equivalência de 1 unidade em USD
 
-- Exemplo: `/api/v1/quotations/EUR/convert?amount=13000`
+Retorna a cotação equivalente a 1 unidade da moeda desejada (ex: EUR, JPY) em Dólares (USD).
+
+```text
+GET /api/v1/quotations/{currency}?reference_date=DD/MM/YYYY
+```
+
+Exemplo de resposta:
+
+```json
+{
+  "currency": "EUR",
+  "date": "03-31-2026",
+  "buy_rate_usd": 1.151606,
+  "sell_rate_usd": 1.151799,
+  "brl_buy": 6.01,
+  "brl_sell": 6.0117
+}
+```
+
+### 3. Converter um montante para USD
+
+Calcula a equivalência total em Dólares (USD) para o montante informado.
+
+```text
+GET /api/v1/quotations/{currency}/convert?amount={valor}&reference_date=DD/MM/YYYY
+```
+
+Exemplo: `/api/v1/quotations/EUR/convert?amount=13000`
 
 ## Testes Automatizados
 
-O projeto utiliza o framework `pytest` com o plugin assíncrono `pytest-asyncio`. Para executar os testes da aplicação garantindo a integridade dos casos de uso, infraestrutura de classes e roteamentos:
+O projeto utiliza o framework `pytest` com o plugin assíncrono `pytest-asyncio`. Para executar os testes:
 
 ```bash
 uv run pytest

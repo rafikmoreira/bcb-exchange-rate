@@ -33,8 +33,8 @@ async def test_get_currency_in_usd_use_case():
     result = await use_case.get_currency_in_usd("EUR", reference_date=datetime(2026, 10, 2))
     
     assert result["currency"] == "EUR"
-    assert result["1_unit_in_usd_buy"] == 1.10
-    assert result["1_unit_in_usd_sell"] == 1.10
+    assert result["buy_rate_usd"] == 1.10
+    assert result["sell_rate_usd"] == 1.10
 
 @pytest.mark.asyncio
 async def test_convert_amount_in_usd_use_case():

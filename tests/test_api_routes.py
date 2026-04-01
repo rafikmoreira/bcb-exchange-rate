@@ -17,7 +17,7 @@ def make_mock_use_case(quotations=None, raises=None):
         default_quotations = quotations or [
             CurrencyQuotation(
                 currency="USD",
-                date="01/04/2026",
+                date="04-01-2026",
                 buy_rate_brl=5.00,
                 sell_rate_brl=5.00,
                 usd_parity_buy=1.0,
@@ -25,7 +25,7 @@ def make_mock_use_case(quotations=None, raises=None):
             ),
             CurrencyQuotation(
                 currency="EUR",
-                date="01/04/2026",
+                date="04-01-2026",
                 buy_rate_brl=5.50,
                 sell_rate_brl=5.50,
                 usd_parity_buy=1.1,
@@ -35,9 +35,9 @@ def make_mock_use_case(quotations=None, raises=None):
         mock.list_all_quotations = AsyncMock(return_value=default_quotations)
         mock.get_currency_in_usd = AsyncMock(return_value={
             "currency": "EUR",
-            "date": "01/04/2026",
-            "1_unit_in_usd_buy": 1.1,
-            "1_unit_in_usd_sell": 1.1,
+            "date": "04-01-2026",
+            "buy_rate_usd": 1.1,
+            "sell_rate_usd": 1.1,
             "brl_buy": 5.50,
             "brl_sell": 5.50,
         })
@@ -46,7 +46,7 @@ def make_mock_use_case(quotations=None, raises=None):
             amount=100.0,
             usd_value_buy=110.0,
             usd_value_sell=110.0,
-            reference_date="01/04/2026",
+            reference_date="04-01-2026",
             rate_used_buy=1.1,
             rate_used_sell=1.1,
         ))

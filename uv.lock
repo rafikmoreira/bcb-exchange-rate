@@ -33,7 +33,7 @@ wheels = [
 ]
 
 [[package]]
-name = "bcb-ptax-api"
+name = "bcb-exchange-rate"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [

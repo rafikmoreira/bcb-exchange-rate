@@ -1,17 +1,22 @@
 from fastapi import APIRouter, Depends, HTTPException
 from datetime import datetime
 from typing import Optional, List
-from src.domain.entities import CurrencyQuotation, ConvertedAmount
+from src.domain.entities import CurrencyQuotation, ConvertedAmount, LogEntry
 from src.use_cases.get_ptax_quotation import GetPtaxQuotationUseCase
 from src.infrastructure.bcb_scraper import PlaywrightBCBScraper
 from src.infrastructure.sqlite_repository import SQLiteQuotationRepository
+from src.infrastructure.sqlite_log_repository import SQLiteLogRepository
 
 router = APIRouter(prefix="/api/v1", tags=["Quotation"])
+
+_log_repo = SQLiteLogRepository()
+
 
 def get_ptax_use_case() -> GetPtaxQuotationUseCase:
     provider = PlaywrightBCBScraper()
     repository = SQLiteQuotationRepository()
     return GetPtaxQuotationUseCase(provider=provider, repository=repository)
+
 
 @router.get("/quotations", response_model=List[CurrencyQuotation], summary="Listar todas as cotações PTAX")
 async def list_all_quotations(
@@ -33,8 +38,18 @@ async def list_all_quotations(
 
     try:
         quotations = await use_case.list_all_quotations(ref_dt)
+        _log_repo.save_log(LogEntry(
+            level="INFO",
+            message=f"Listagem de cotações consultada com sucesso para {ref_dt.strftime('%d/%m/%Y')}. Total: {len(quotations)} moedas.",
+            context="GET /api/v1/quotations",
+        ))
         return quotations
     except ValueError as e:
+        _log_repo.save_log(LogEntry(
+            level="ERROR",
+            message=str(e),
+            context="GET /api/v1/quotations",
+        ))
         raise HTTPException(status_code=404, detail=str(e))
 
 @router.get("/quotations/{currency}", summary="Equivalência da moeda em USD")
@@ -57,8 +72,19 @@ async def get_currency_in_usd(
         ref_dt = datetime.now()
 
     try:
-        return await use_case.get_currency_in_usd(currency, ref_dt)
+        result = await use_case.get_currency_in_usd(currency, ref_dt)
+        _log_repo.save_log(LogEntry(
+            level="INFO",
+            message=f"Cotação de {currency.upper()} em USD consultada para {ref_dt.strftime('%d/%m/%Y')}.",
+            context=f"GET /api/v1/quotations/{currency}",
+        ))
+        return result
     except ValueError as e:
+        _log_repo.save_log(LogEntry(
+            level="ERROR",
+            message=str(e),
+            context=f"GET /api/v1/quotations/{currency}",
+        ))
         raise HTTPException(status_code=404, detail=str(e))
 
 @router.get("/quotations/{currency}/convert", response_model=ConvertedAmount, summary="Converter montante para USD")
@@ -84,6 +110,17 @@ async def convert_currency_to_usd(
         ref_dt = datetime.now()
 
     try:
-        return await use_case.convert_amount_in_usd(currency, amount, ref_dt)
+        result = await use_case.convert_amount_in_usd(currency, amount, ref_dt)
+        _log_repo.save_log(LogEntry(
+            level="INFO",
+            message=f"Conversão de {amount} {currency.upper()} para USD realizada para {ref_dt.strftime('%d/%m/%Y')}.",
+            context=f"GET /api/v1/quotations/{currency}/convert",
+        ))
+        return result
     except ValueError as e:
+        _log_repo.save_log(LogEntry(
+            level="ERROR",
+            message=str(e),
+            context=f"GET /api/v1/quotations/{currency}/convert",
+        ))
         raise HTTPException(status_code=404, detail=str(e))
