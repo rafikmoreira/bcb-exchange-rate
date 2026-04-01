@@ -1,5 +1,7 @@
 # PTAX Quotation API
 
+[![CI](https://github.com/rafikmoreira/bcb-ptax-api/actions/workflows/ci.yml/badge.svg)](https://github.com/rafikmoreira/bcb-ptax-api/actions/workflows/ci.yml)
+
 Uma API construída com **FastAPI** seguindo os princípios da **Clean Architecture** para consultar, de forma automatizada, dados de cotação do **Banco Central do Brasil (BCB)** através da taxa PTAX. O projeto utiliza o **Playwright** para fazer o download automático dos arquivos CSV da cotação e calcula a equivalência das moedas atreladas ao Dólar Americano (USD).
 
 ## Principais Funcionalidades
@@ -24,7 +26,7 @@ O projeto foi migrado para utilizar o `uv` como gerenciador de dependências em 
 1. Clone o repositório e acesse a pasta do projeto:
 
    ```bash
-   git clone <repo-url>
+   git clone https://github.com/rafikmoreira/bcb-ptax-api.git
    cd bcb-ptax-api
    ```
 
