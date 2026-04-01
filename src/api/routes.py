@@ -19,15 +19,18 @@ async def list_all_quotations(
     use_case: GetPtaxQuotationUseCase = Depends(get_ptax_use_case)
 ):
     """
-    Lista TODAS as moedas e suas informações extraídas do PTAX (BCB) na data solicitada, 
+    Lista TODAS as moedas e suas informações extraídas do PTAX (BCB) na data solicitada,
     incluindo taxas em BRL e as Paridades do site do BC.
     :param reference_date: DD/MM/YYYY (opcional)
     """
     if reference_date:
-        ref_dt = datetime.strptime(reference_date, "%d/%m/%Y")
+        try:
+            ref_dt = datetime.strptime(reference_date, "%d/%m/%Y")
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Formato de data inválido. Use DD/MM/YYYY.")
     else:
         ref_dt = datetime.now()
-        
+
     try:
         quotations = await use_case.list_all_quotations(ref_dt)
         return quotations
@@ -46,10 +49,13 @@ async def get_currency_in_usd(
     :param reference_date: DD/MM/YYYY (opcional)
     """
     if reference_date:
-        ref_dt = datetime.strptime(reference_date, "%d/%m/%Y")
+        try:
+            ref_dt = datetime.strptime(reference_date, "%d/%m/%Y")
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Formato de data inválido. Use DD/MM/YYYY.")
     else:
         ref_dt = datetime.now()
-        
+
     try:
         return await use_case.get_currency_in_usd(currency, ref_dt)
     except ValueError as e:
@@ -64,16 +70,19 @@ async def convert_currency_to_usd(
 ):
     """
     Calcula a equivalência total em Dólares (USD) para um montante solicitado em uma moeda.
-    Ex: /quotation/EUR/convert?amount=13000
+    Ex: /quotations/EUR/convert?amount=13000
     """
     if amount <= 0:
         raise HTTPException(status_code=400, detail="O valor de amount deve ser maior que 0.")
-        
+
     if reference_date:
-        ref_dt = datetime.strptime(reference_date, "%d/%m/%Y")
+        try:
+            ref_dt = datetime.strptime(reference_date, "%d/%m/%Y")
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Formato de data inválido. Use DD/MM/YYYY.")
     else:
         ref_dt = datetime.now()
-        
+
     try:
         return await use_case.convert_amount_in_usd(currency, amount, ref_dt)
     except ValueError as e:
