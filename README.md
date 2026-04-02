@@ -57,8 +57,9 @@ Você também pode acessar a documentação interativa gerada automaticamente pe
 
 ## Principais Endpoints da API
 
-O parâmetro `reference_date` é opcional em todos os endpoints. Quando não informado, a data do dia útil anterior é utilizada.
-
+O parâmetro `reference_date` é opcional em todos os endpoints. Quando não informado, a data do dia útil anterior é utilizada por padrão.
+> **Comportamento em finais de semana:** Se uma data específica for informada e ela cair em um final de semana (Sábado ou Domingo), a API **retrocederá automaticamente para a última Sexta-feira** antes de realizar a busca ou o processamento dos dados.
+>
 > **Formato de datas:** tanto o parâmetro `reference_date` (entrada) quanto as datas retornadas nas respostas seguem o padrão ISO 8601 `YYYY-MM-DD` (ex: `2026-04-01`).
 
 ### 1. Listar todas as cotações

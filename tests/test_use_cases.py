@@ -2,7 +2,7 @@ import pytest
 from datetime import datetime
 from src.domain.entities import CurrencyQuotation
 from src.domain.ports import QuotationProvider
-from src.use_cases.get_ptax_quotation import GetPtaxQuotationUseCase, get_previous_business_day
+from src.use_cases.get_ptax_quotation import GetPtaxQuotationUseCase, get_previous_business_day, get_closest_business_day
 
 class MockQuotationProvider(QuotationProvider):
     async def get_all_quotations_for_date(self, target_date: str) -> list[CurrencyQuotation]:
@@ -53,3 +53,20 @@ def test_get_previous_business_day_monday():
     monday = datetime(2026, 10, 5)
     previous = get_previous_business_day(monday)
     assert previous.strftime("%Y-%m-%d") == "2026-10-02"
+
+def test_get_closest_business_day_weekend():
+    # 2026-10-04 = Sunday
+    sunday = datetime(2026, 10, 4)
+    closest = get_closest_business_day(sunday)
+    assert closest.strftime("%Y-%m-%d") == "2026-10-02"
+    
+    # 2026-10-03 = Saturday
+    saturday = datetime(2026, 10, 3)
+    closest = get_closest_business_day(saturday)
+    assert closest.strftime("%Y-%m-%d") == "2026-10-02"
+
+def test_get_closest_business_day_weekday():
+    # 2026-10-01 = Thursday
+    thursday = datetime(2026, 10, 1)
+    closest = get_closest_business_day(thursday)
+    assert closest.strftime("%Y-%m-%d") == "2026-10-01"

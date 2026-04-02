@@ -4,12 +4,16 @@ from src.domain.entities import CurrencyQuotation, ConvertedAmount, LogEntry, Cu
 from src.domain.exceptions import DomainError, QuotationNotFoundError
 from src.domain.ports import QuotationProvider, QuotationRepository, LogRepository
 
-def get_previous_business_day(from_date: datetime) -> datetime:
-    """Retorna a data correspondente ao dia útil anterior (considerando apenas sab/dom como não úteis)."""
-    target = from_date - timedelta(days=1)
+def get_closest_business_day(target_date: datetime) -> datetime:
+    """Se a data for sábado ou domingo, retrocede para o dia útil mais próximo (sexta-feira)."""
+    target = target_date
     while target.weekday() >= 5:
         target -= timedelta(days=1)
     return target
+
+def get_previous_business_day(from_date: datetime) -> datetime:
+    """Retorna a data correspondente ao dia útil anterior (considerando apenas sab/dom como não úteis)."""
+    return get_closest_business_day(from_date - timedelta(days=1))
 
 class GetPtaxQuotationUseCase:
     def __init__(
@@ -35,7 +39,7 @@ class GetPtaxQuotationUseCase:
         if reference_date is None:
             target_date = get_previous_business_day(datetime.now())
         else:
-            target_date = reference_date
+            target_date = get_closest_business_day(reference_date)
             
         formatted_date = target_date.strftime("%Y-%m-%d")
         
