@@ -3,9 +3,12 @@ import io
 import os
 import tempfile
 from datetime import datetime
-from typing import List
 
-from playwright.async_api import async_playwright, TimeoutError as PlaywrightTimeoutError
+from playwright.async_api import (
+    Error as PlaywrightError,
+    TimeoutError as PlaywrightTimeoutError,
+    async_playwright,
+)
 
 from src.domain.entities import CurrencyQuotation
 from src.domain.exceptions import QuotationNotFoundError, ScrapingError
@@ -19,8 +22,12 @@ class PlaywrightBCBScraper(QuotationProvider):
         os.makedirs(CACHE_DIR, exist_ok=True)
 
     async def get_all_quotations_for_date(
-        self, target_date: str
-    ) -> List[CurrencyQuotation]:
+        self, target_date: str,
+    ) -> list[CurrencyQuotation]:
+        """
+        Busca as cotações de todas as moedas para uma data específica.
+        Verifica cache em disco antes de acionar o scraper via Playwright.
+        """
         dt_obj = datetime.strptime(target_date, "%Y-%m-%d")
         file_date_str = dt_obj.strftime("%d%m%Y")
         file_name = f"cotacaoTodasAsMoedas_{file_date_str}.csv"
@@ -33,9 +40,13 @@ class PlaywrightBCBScraper(QuotationProvider):
 
         csv_text = await self._download_csv_from_playwright(target_date)
 
+        with open(file_path, "w", encoding="utf-8") as csv_file:
+            csv_file.write(csv_text)
+
         return self._parse_all_currencies(csv_text, target_date)
 
     async def _download_csv_from_playwright(self, target_date: str) -> str:
+        """Faz o download do CSV de cotações do site do BCB via Playwright."""
         async with async_playwright() as p:
             browser = await p.chromium.launch(headless=True)
             page = await browser.new_page()
@@ -70,14 +81,15 @@ class PlaywrightBCBScraper(QuotationProvider):
                         )
                         await download_btn.click()
                 except PlaywrightTimeoutError as e:
-                    # Capturamos o texto do body para mostrar erro útil (ex: data sem cotação/feriado)
                     body_text = await frame.locator("body").inner_text()
                     raise QuotationNotFoundError(
-                        f"Não foi possível baixar o CSV para a data {target_date}. A página pode não conter cotações. Erro original: {str(e)}. Resposta do Banco Central: {body_text.strip()[:300]}"
+                        f"Não foi possível baixar o CSV para a data {target_date}. "
+                        f"A página pode não conter cotações. Erro original: {e}. "
+                        f"Resposta do Banco Central: {body_text.strip()[:300]}"
                     ) from e
-                except Exception as e:
+                except PlaywrightError as e:
                     raise ScrapingError(
-                        f"Erro inesperado durante o scraping para a data {target_date}: {str(e)}"
+                        f"Erro inesperado durante o scraping para a data {target_date}: {e}"
                     ) from e
 
                 download = await download_info.value
@@ -92,8 +104,13 @@ class PlaywrightBCBScraper(QuotationProvider):
                 await browser.close()
 
     def _parse_all_currencies(
-        self, csv_text: str, target_date: str
-    ) -> List[CurrencyQuotation]:
+        self, csv_text: str, target_date: str,
+    ) -> list[CurrencyQuotation]:
+        """
+        Faz o parsing do conteúdo CSV de cotações do BCB.
+        Formato: Data;Codec;Tipo;Sigla;CompraBRL;VendaBRL;ParidadeCompra;ParidadeVenda
+        Decimais usam vírgula (ex: 5,2188) e delimitador é ponto-e-vírgula (;).
+        """
         reader = csv.reader(io.StringIO(csv_text.strip()), delimiter=";")
         quotations = []
 

@@ -1,18 +1,19 @@
 import os
 import sqlite3
-from typing import List
 
 from src.domain.entities import CurrencyQuotation
 from src.domain.ports import QuotationRepository
 
 
 class SQLiteQuotationRepository(QuotationRepository):
-    def __init__(self, db_path: str = "data/db/quotations.db"):
+    """Repositório de cotações utilizando SQLite como backend de persistência."""
+
+    def __init__(self, db_path: str = "data/db/quotations.db") -> None:
         self.db_path = db_path
         os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
         self._init_db()
 
-    def _init_db(self):
+    def _init_db(self) -> None:
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
             cursor.execute("""
@@ -30,7 +31,7 @@ class SQLiteQuotationRepository(QuotationRepository):
             conn.commit()
 
     def save_quotations(
-        self, target_date: str, quotations: List[CurrencyQuotation]
+        self, target_date: str, quotations: list[CurrencyQuotation],
     ) -> None:
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
@@ -52,7 +53,7 @@ class SQLiteQuotationRepository(QuotationRepository):
                 )
             conn.commit()
 
-    def get_quotations_by_date(self, target_date: str) -> List[CurrencyQuotation]:
+    def get_quotations_by_date(self, target_date: str) -> list[CurrencyQuotation]:
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
             cursor.execute(

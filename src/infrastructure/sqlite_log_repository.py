@@ -1,19 +1,20 @@
 import os
 import sqlite3
 from datetime import datetime, timezone
-from typing import List, Optional
 
 from src.domain.entities import LogEntry
 from src.domain.ports import LogRepository
 
 
 class SQLiteLogRepository(LogRepository):
-    def __init__(self, db_path: str = "data/db/quotations.db"):
+    """Repositório de logs utilizando SQLite como backend de persistência."""
+
+    def __init__(self, db_path: str = "data/db/quotations.db") -> None:
         self.db_path = db_path
         os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
         self._init_db()
 
-    def _init_db(self):
+    def _init_db(self) -> None:
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
             cursor.execute("""
@@ -37,7 +38,7 @@ class SQLiteLogRepository(LogRepository):
             )
             conn.commit()
 
-    def get_logs(self, level: Optional[str] = None, limit: int = 100) -> List[LogEntry]:
+    def get_logs(self, level: str | None = None, limit: int = 100) -> list[LogEntry]:
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
             if level:

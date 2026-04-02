@@ -1,10 +1,10 @@
 class DomainError(Exception):
-    """Base exception for all domain-level errors."""
+    """Exceção base para todos os erros de domínio."""
 
 
 class QuotationNotFoundError(DomainError):
-    """Raised when quotation data is not available for the given parameters."""
+    """Lançada quando os dados de cotação não estão disponíveis para os parâmetros informados."""
 
 
 class ScrapingError(DomainError):
-    """Raised when the scraper fails to retrieve data from the external source."""
+    """Lançada quando o scraper falha ao recuperar dados da fonte externa."""

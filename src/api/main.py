@@ -10,7 +10,7 @@ app = FastAPI(
 )
 
 @app.exception_handler(RequestValidationError)
-async def validation_exception_handler(request: Request, exc: RequestValidationError):
+async def validation_exception_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
     errors = []
     for error in exc.errors():
         location = error.get("loc", [])
@@ -29,7 +29,8 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     return JSONResponse(status_code=422, content={"detail": errors})
 
 @app.get("/", include_in_schema=False)
-async def docs_redirect():
+async def docs_redirect() -> RedirectResponse:
+    """Redireciona a raiz para a documentação Swagger."""
     return RedirectResponse(url="/docs")
 
 app.include_router(router)
