@@ -1,7 +1,7 @@
 [project]
-name = "bcb-exchange-rate"
+name = "bcb-ptax-api"
 version = "0.1.0"
-description = "Add your description here"
+description = "API FastAPI para consumo automatizado (scraper) das cotações PTAX e paridades do Banco Central do Brasil."
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
