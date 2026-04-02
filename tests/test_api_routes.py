@@ -2,7 +2,7 @@ from unittest.mock import AsyncMock, MagicMock
 from fastapi.testclient import TestClient
 
 from src.api.main import app
-from src.api.routes import get_ptax_use_case
+from src.api.dependencies import get_ptax_use_case
 from src.domain.entities import CurrencyQuotation, ConvertedAmount
 
 

@@ -1,7 +1,8 @@
-import sqlite3
 import os
+import sqlite3
 from datetime import datetime, timezone
 from typing import List, Optional
+
 from src.domain.entities import LogEntry
 from src.domain.ports import LogRepository
 
